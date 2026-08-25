@@ -1,0 +1,18 @@
+[package]
+name = "gavani"
+version = "0.1.0"
+edition = "2024"
+description = "A focus stopwatch TUI: record focus sessions with start, end, and duration."
+license = "MIT"
+
+[dependencies]
+ratatui = "0.29"
+crossterm = "0.28"
+chrono = { version = "0.4", features = ["clock", "serde"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "6"
+
+[profile.release]
+lto = true
+strip = true
