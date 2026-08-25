@@ -24,7 +24,7 @@ strip = true
 maintainer = "SysSyncer <https://github.com/SysSyncer>"
 copyright = "2026 SysSyncer"
 license-file = ["LICENSE", "0"]
-depends = "$auto"
+depends = "libc6 (>= 2.31), libgcc-s1"
 section = "utils"
 priority = "optional"
 extended-description = """\
