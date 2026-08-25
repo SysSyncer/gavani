@@ -22,16 +22,16 @@ class Gavani < Formula
   on_macos do
     if Hardware::CPU.arm?
       url "https://github.com/SysSyncer/gavani/releases/download/v0.1.0/gavani-0.1.0-aarch64-apple-darwin.tar.gz"
-      sha256 "PLACEHOLDER_ARM64_MAC_SHA256"
+      sha256 "96a3ad1ebcdac9930d2d1827f9248f8f51b30df3df96dcc9a49c3926ef9ad533"
     else
       url "https://github.com/SysSyncer/gavani/releases/download/v0.1.0/gavani-0.1.0-x86_64-apple-darwin.tar.gz"
-      sha256 "PLACEHOLDER_INTEL_MAC_SHA256"
+      sha256 "4126eb67a1e1d0e3ca7c67cf19a6724ae317ac50d41d0449a21ad14cf4357754"
     end
   end
 
   on_linux do
     url "https://github.com/SysSyncer/gavani/releases/download/v0.1.0/gavani-0.1.0-x86_64-unknown-linux-gnu.tar.gz"
-    sha256 "PLACEHOLDER_LINUX_SHA256"
+    sha256 "7f0e78beece6999dd06231e3419d9df5c9ff708be83b68cefff652486f32880c"
   end
 
   def install

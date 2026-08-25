@@ -20,7 +20,7 @@ depends=('gcc-libs')
 provides=('gavani')
 conflicts=('gavani')
 source=("gavani-${pkgver}-x86_64-unknown-linux-gnu.tar.gz::https://github.com/SysSyncer/gavani/releases/download/v${pkgver}/gavani-${pkgver}-x86_64-unknown-linux-gnu.tar.gz")
-sha256sums=('SKIP')  # replace with real checksum: updpkgsums
+sha256sums=('7f0e78beece6999dd06231e3419d9df5c9ff708be83b68cefff652486f32880c')
 
 package() {
   install -Dm755 "gavani-${pkgver}/gavani" -t "$pkgdir/usr/bin/"
