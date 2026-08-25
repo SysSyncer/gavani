@@ -26,10 +26,11 @@ Windows by CI on every version tag.
 
 | Platform | Method | Status |
 |----------|--------|--------|
-| Arch (AUR) | `paru -S gavani` (source) or `gavani-bin` (prebuilt) | PKGBUILDs in [`packaging/`](packaging/) |
-| Debian/Ubuntu | `cargo deb` → `.deb`, or PPA | `cargo-deb` config in `Cargo.toml` |
-| macOS/Linux | `brew install SysSyncer/tap/gavani` | formula in [`packaging/gavani.rb`](packaging/gavani.rb) |
-| Windows | `scoop install gavani` / `winget install SysSyncer.gavani` | manifests in [`packaging/`](packaging/) |
+| Arch (AUR) | `paru -S gavani-bin` | PKGBUILDs in [`packaging/`](packaging/) — pending AUR registration reopening |
+| Debian/Ubuntu | `sudo apt install ./gavani_0.1.0-1_amd64.deb` from [Releases](https://github.com/SysSyncer/gavani/releases) | ✅ published |
+| macOS/Linux | `brew install SysSyncer/tap/gavani` | ✅ live at [SysSyncer/homebrew-tap](https://github.com/SysSyncer/homebrew-tap) |
+| Windows (Scoop) | `scoop bucket add syssyncer https://github.com/SysSyncer/scoop-bucket` → `scoop install gavani` | ✅ live at [SysSyncer/scoop-bucket](https://github.com/SysSyncer/scoop-bucket) |
+| Windows (Winget) | `winget install SysSyncer.gavani` | pending winget-pkgs PR merge |
 
 See [`packaging/`](packaging/) for the manifests and submission steps for
 each registry.
