@@ -7,15 +7,34 @@ physical stopwatch.
 
 ![gavani running in a terminal](assets/screenshot.png)
 
-## Install / Run
+## Install
+
+### From source (any OS)
 
 ```bash
-cargo run --release          # from this directory
-cargo build --release        # binary lands in target/release/gavani
+cargo install --path .        # or: cargo build --release
 ```
 
-Requires only a Rust toolchain (`rustup`). Works on Linux, BSD, macOS, and
-Windows — no other dependencies.
+### Prebuilt binaries
+
+Grab a `gavani-vX.Y.Z-<target>` asset from
+[GitHub Releases](https://github.com/SysSyncer/gavani/releases) — built
+automatically for Linux (x86_64), macOS (Apple Silicon + Intel), and
+Windows by CI on every version tag.
+
+### Package managers
+
+| Platform | Method | Status |
+|----------|--------|--------|
+| Arch (AUR) | `paru -S gavani` (source) or `gavani-bin` (prebuilt) | PKGBUILDs in [`packaging/`](packaging/) |
+| Debian/Ubuntu | `cargo deb` → `.deb`, or PPA | `cargo-deb` config in `Cargo.toml` |
+| macOS/Linux | `brew install SysSyncer/tap/gavani` | formula in [`packaging/gavani.rb`](packaging/gavani.rb) |
+| Windows | `scoop install gavani` / `winget install SysSyncer.gavani` | manifests in [`packaging/`](packaging/) |
+
+See [`packaging/`](packaging/) for the manifests and submission steps for
+each registry.
+
+## Configuration
 
 ## Keybindings
 

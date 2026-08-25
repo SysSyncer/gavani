@@ -1,0 +1,28 @@
+# Maintainer: SysSyncer <https://github.com/SysSyncer>
+# AUR "-bin" package: installs the prebuilt Linux binary from GitHub
+# Releases instead of compiling from source (faster installs).
+#
+# Submit alongside (or instead of) the source PKGBUILD as package
+# "gavani-bin". Same steps: clone ssh://aur@aur.archlinux.org/gavani-bin.git,
+# copy this file, updpkgsums, makepkg --printsrcinfo > .SRCINFO, push.
+#
+# Requires a published GitHub release with the asset produced by
+# .github/workflows/release.yml.
+
+pkgname=gavani-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Keyboard-driven focus stopwatch TUI with session history, themes, and pause/resume"
+arch=('x86_64')
+url="https://github.com/SysSyncer/gavani"
+license=('MIT')
+depends=('gcc-libs')
+provides=('gavani')
+conflicts=('gavani')
+source=("gavani-${pkgver}-x86_64-unknown-linux-gnu.tar.gz::https://github.com/SysSyncer/gavani/releases/download/v${pkgver}/gavani-${pkgver}-x86_64-unknown-linux-gnu.tar.gz")
+sha256sums=('SKIP')  # replace with real checksum: updpkgsums
+
+package() {
+  install -Dm755 "gavani-${pkgver}/gavani" -t "$pkgdir/usr/bin/"
+  install -Dm644 "gavani-${pkgver}/LICENSE" -t "$pkgdir/usr/share/licenses/$pkgname/"
+}

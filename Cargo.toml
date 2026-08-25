@@ -16,3 +16,18 @@ dirs = "6"
 [profile.release]
 lto = true
 strip = true
+
+# Debian packaging via cargo-deb (`cargo install cargo-deb && cargo deb`).
+# Produces target/debian/gavani_0.1.0-1_amd64.deb, installable with
+# `sudo apt install ./gavani_...deb` or uploaded to a PPA/apt repo.
+[package.metadata.deb]
+maintainer = "SysSyncer <https://github.com/SysSyncer>"
+copyright = "2026 SysSyncer"
+license-file = ["LICENSE", "0"]
+depends = "$auto"
+section = "utils"
+priority = "optional"
+extended-description = """\
+Keyboard-driven focus stopwatch TUI. Records focus sessions with start, \
+end, and total duration, with themes, pause/resume, and JSON persistence.\
+"""

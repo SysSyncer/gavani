@@ -1,0 +1,25 @@
+{
+    "$schema": "https://raw.githubusercontent.com/ScoopInstaller/Scoop/refs/heads/main/schema.json",
+    "version": "0.1.0",
+    "description": "Keyboard-driven focus stopwatch TUI with session history, themes, and pause/resume",
+    "homepage": "https://github.com/SysSyncer/gavani",
+    "license": "MIT",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/SysSyncer/gavani/releases/download/v0.1.0/gavani-0.1.0-x86_64-pc-windows-msvc.zip",
+            "hash": "PLACEHOLDER_ZIP_SHA256"
+        }
+    },
+    "bin": "gavani-0.1.0\\gavani.exe",
+    "extract_dir": "gavani-0.1.0",
+    "checkver": {
+        "github": "https://github.com/SysSyncer/gavani"
+    },
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/SysSyncer/gavani/releases/download/v$version/gavani-$version-x86_64-pc-windows-msvc.zip"
+            }
+        }
+    }
+}
