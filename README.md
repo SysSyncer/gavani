@@ -5,13 +5,7 @@ you begin focusing, stop it when you're done — gavani records every session
 with its start time, end time, and total focused duration, like laps on a
 physical stopwatch.
 
-```
-╭─ gavani ● FOCUSING ──────────────────────────────── tokyonight ╮
-│                                                                │
-╭─ Focus Timer ──────────────────────────────────────────────────╮
-│  ██ █ █  ███   ███  █ █  ███   ███                             │
-│ ...
-```
+![gavani running in a terminal](assets/screenshot.png)
 
 ## Install / Run
 
