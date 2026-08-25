@@ -223,4 +223,6 @@ cargo fmt               # canonical formatting
 
 ---
 
-MIT licensed. Named **gavani** — press `s`, focus, press `s` again.
+MIT licensed — see [LICENSE](LICENSE).
+
+Named **gavani** — press `s`, focus, press `s` again.

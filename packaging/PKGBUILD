@@ -1,0 +1,39 @@
+# Maintainer: SysSyncer <https://github.com/SysSyncer>
+# AUR package draft for gavani — the focus stopwatch TUI.
+#
+# How to submit to the AUR (when ready):
+#   1. Create tag v0.1.0 on GitHub and push it (the src URL below needs it).
+#   2. Clone the AUR repo:  git clone ssh://aur@aur.archlinux.org/gavani.git
+#   3. Copy this PKGBUILD into it, then run:  makepkg --printsrcinfo > .SRCINFO
+#   4. Test locally first:  makepkg -si
+#   5. Commit and push to the AUR repo. Users can then: paru -S gavani
+
+pkgname=gavani
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Keyboard-driven focus stopwatch TUI with session history, themes, and pause/resume"
+arch=('x86_64' 'aarch64')
+url="https://github.com/SysSyncer/gavani"
+license=('MIT')
+depends=('gcc-libs')
+makedepends=('rust' 'cargo')
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')  # replace with real checksum: updpkgsums
+
+build() {
+  cd "$pkgname-$pkgver"
+  export RUSTUP_TOOLCHAIN=stable
+  cargo build --release --locked
+}
+
+check() {
+  cd "$pkgname-$pkgver"
+  cargo test --release --locked
+}
+
+package() {
+  cd "$pkgname-$pkgver"
+  install -Dm755 target/release/gavani -t "$pkgdir/usr/bin/"
+  install -Dm644 README.md -t "$pkgdir/usr/share/doc/gavani/"
+  install -Dm644 LICENSE -t "$pkgdir/usr/share/licenses/gavani/"
+}
