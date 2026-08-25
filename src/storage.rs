@@ -60,15 +60,36 @@ pub fn data_path() -> Option<std::path::PathBuf> {
     config_dir().map(|d| d.join("sessions.json"))
 }
 
-/// Load all stored sessions. Any failure (missing/corrupt file) yields an
-/// empty store rather than an error — the app must always start.
+/// Load all stored sessions, synchronising the data file with disk state:
+///
+/// - **Missing file** → an empty store is created on disk, so
+///   `~/.config/gavani/sessions.json` always exists after first run.
+/// - **Corrupt file** (invalid JSON, truncated by a crash mid-write…) →
+///   the file is **overwritten** with an empty store. We never panic or
+///   refuse to start; the corrupt content is unrecoverable JSON anyway.
+///
+/// Any other IO failure (permissions, disk) yields an empty in-memory
+/// store — the app must always start.
 pub fn load() -> Store {
     let Some(path) = data_path() else {
         return Store::default();
     };
     match std::fs::read_to_string(&path) {
-        Ok(data) => serde_json::from_str(&data).unwrap_or_default(),
-        Err(_) => Store::default(),
+        Ok(data) => match serde_json::from_str(&data) {
+            Ok(store) => store,
+            Err(_) => {
+                // Corrupt: overwrite with a fresh empty store.
+                let fresh = Store::default();
+                let _ = save(&fresh);
+                fresh
+            }
+        },
+        Err(_) => {
+            // Missing: create the file so the data layout is materialised.
+            let fresh = Store::default();
+            let _ = save(&fresh);
+            fresh
+        }
     }
 }
 

@@ -58,22 +58,28 @@ impl Config {
         }
     }
 
-    /// Load config from disk, writing the defaults on first launch.
+    /// Load config from disk, synchronising it with disk state:
+    ///
+    /// - **Missing file** → defaults are written to disk, so users always
+    ///   have an editable template after first launch.
+    /// - **Corrupt file** → overwritten with defaults (never crash, never
+    ///   leave a broken config in place).
     pub fn load() -> Self {
         let Some(path) = crate::storage::config_dir().map(|d| d.join("config.json")) else {
             return Config::default();
         };
         match std::fs::read_to_string(&path) {
-            Ok(data) => serde_json::from_str(&data).unwrap_or_default(),
+            // Valid JSON: honour the user's settings.
+            Ok(data) => serde_json::from_str(&data).unwrap_or_else(|_| {
+                // Corrupt: overwrite with defaults.
+                let cfg = Config::default();
+                cfg.save();
+                cfg
+            }),
+            // Missing: create it with defaults.
             Err(_) => {
                 let cfg = Config::default();
-                // Best effort: ignore write errors, app still works.
-                if let Some(parent) = path.parent() {
-                    let _ = std::fs::create_dir_all(parent);
-                }
-                if let Ok(json) = serde_json::to_string_pretty(&cfg) {
-                    let _ = std::fs::write(&path, json);
-                }
+                cfg.save();
                 cfg
             }
         }
