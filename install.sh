@@ -1,6 +1,6 @@
-#!/bin/sh
-# gavani installer — downloads the latest release binary for your platform
-# and installs it globally.
+#!/usr/bin/env sh
+# gavani installer – auto‑detects OS/arch, fetches the latest release,
+# and installs the binary globally (sudo) or user‑local (no sudo).
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/SysSyncer/gavani/main/install.sh | sh
@@ -8,60 +8,67 @@
 # Or download first and review before running:
 #   curl -fsSLO https://raw.githubusercontent.com/SysSyncer/gavani/main/install.sh
 #   sh install.sh
-#
-# Installs to /usr/local/bin if possible (with sudo), otherwise ~/.local/bin.
 
 set -eu
 
 REPO="SysSyncer/gavani"
-VERSION="${GAVANI_VERSION:-0.1.0}"
 
-# Map OS + architecture to the release asset target name.
-OS="$(uname -s)"
-ARCH="$(uname -m)"
-case "$OS" in
-    Linux*) os_target="unknown-linux-gnu" ;;
-    Darwin*) os_target="apple-darwin" ;;
-    *)
-        echo "error: unsupported OS '$OS' (use scoop/winget on Windows)" >&2
-        exit 1
-        ;;
+# ---- 1. detect platform -------------------------------------------------
+UNAME_S=$(uname -s)
+UNAME_M=$(uname -m)
+
+case "$UNAME_S" in
+    Linux*)   OS="linux"   ;;
+    Darwin*)  OS="macos"   ;;
+    *)        echo "error: unsupported OS" >&2; exit 1 ;;
 esac
-case "$ARCH" in
-    x86_64|amd64) arch_target="x86_64" ;;
-    aarch64|arm64) arch_target="aarch64" ;;
-    *)
-        echo "error: unsupported architecture '$ARCH'" >&2
-        exit 1
-        ;;
+
+case "$UNAME_M" in
+    x86_64|amd64) ARCH="x86_64" ;;
+    aarch64|arm64) ARCH="aarch64" ;;
+    *)            echo "error: unsupported arch" >&2; exit 1 ;;
 esac
-# Apple Silicon / Intel both use the same archive naming.
-TARGET="${arch_target}-${os_target}"
 
-ASSET="gavani-${VERSION}-${TARGET}.tar.gz"
-URL="https://github.com/${REPO}/releases/download/v${VERSION}/${ASSET}"
+# ---- 2. fetch latest version & asset map -------------------------------
+API="https://api.github.com/repos/${REPO}/releases/latest"
+# NOTE: jq must be available; if not, we fall back to the hardcoded version.
+VERSION=$(curl -fsSL "${API}" | jq -r .tag_name | sed 's/^v//') || {
+    # fallback if jq missing or API fails
+    VERSION="0.1.0"
+}
 
-TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
+# Map detected platform to the asset name(s) published in the release.
+case "${OS}-${ARCH}" in
+    linux-x86_64)   ASSET="gavani-${VERSION}-x86_64-unknown-linux-gnu.tar.gz" ;;
+    macos-x86_64)   ASSET="gavani-${VERSION}-x86_64-apple-darwin.tar.gz" ;;
+    macos-aarch64)  ASSET="gavani-${VERSION}-aarch64-apple-darwin.tar.gz" ;;
+    linux-aarch64)  ASSET="gavani-${VERSION}-aarch64-unknown-linux-gnu.tar.gz" ;;
+    # Windows assets are published separately; add them if needed.
+    *)              echo "error: no asset for ${OS}-${ARCH}" >&2; exit 1 ;;
+esac
 
-echo "==> Downloading ${URL}"
-curl -fsSL "$URL" -o "$TMP/$ASSET"
+ASSET_URL="https://github.com/${REPO}/releases/download/v${VERSION}/${ASSET}"
 
-echo "==> Extracting"
-tar xzf "$TMP/$ASSET" -C "$TMP"
-
-# Pick an install dir: system-wide when we can sudo, user-local otherwise.
-if [ -w /usr/local/bin ] || sudo -n true 2>/dev/null; then
+# ---- 3. choose install directory ----------------------------------------
+if sudo -n true 2>/dev/null; then
     DEST="/usr/local/bin"
-    INSTALL_CMD="sudo install"
+    INSTALL="sudo install -m755"
 else
     DEST="${HOME}/.local/bin"
     mkdir -p "$DEST"
-    INSTALL_CMD="install"
-    echo "==> No sudo available; installing to $DEST (make sure it is on your PATH)"
+    INSTALL="install -m755"
+    echo "No sudo available - installing to $DEST (make sure it is on your PATH)"
 fi
 
-$INSTALL_CMD -m755 "$TMP/gavani-${VERSION}/gavani" "$DEST/gavani"
+# ---- 4. download + install ---------------------------------------------
+echo "Downloading gvana ${VERSION} for ${OS}-${ARCH}"
+curl -fsSL "${ASSET_URL}" -o "/tmp/gavani-${VERSION}.tar.gz"
 
-echo "==> Installed gavani ${VERSION} to ${DEST}/gavani"
-echo "    Run it with: gavani"
+echo "Extracting"
+tar xzf "/tmp/gavani-${VERSION}.tar.gz" -C /tmp
+
+echo "Installing to ${DEST}"
+$INSTALL "/tmp/gavani-${VERSION}/gavani" "$DEST/gavani"
+
+echo "Installed gvana ${VERSION} to ${DEST}/gavana"
+echo "Run it with: gvana"
