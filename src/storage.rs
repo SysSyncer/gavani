@@ -83,3 +83,47 @@ pub fn save(store: &Store) -> std::io::Result<()> {
     let data = serde_json::to_string_pretty(store)?;
     std::fs::write(path, data)
 }
+
+// ---------------------------------------------------------------------------
+// Active session persistence (crash / quit recovery)
+// ---------------------------------------------------------------------------
+
+/// Snapshot of an in-progress session, saved continuously so that if the
+/// app is killed (or quit with `q`) mid-session, the next launch can
+/// restore the timer in a paused state with the elapsed time intact.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct ActiveSession {
+    /// Wall-clock start of the session (for display).
+    pub start: DateTime<Local>,
+    /// Seconds focused so far (pause-adjusted, frozen at save time).
+    pub elapsed: u64,
+}
+
+/// Path of the active-session file (…/gavani/active.json).
+fn active_path() -> Option<std::path::PathBuf> {
+    config_dir().map(|d| d.join("active.json"))
+}
+
+/// Load a saved in-progress session, if the last run left one behind.
+pub fn load_active() -> Option<ActiveSession> {
+    let path = active_path()?;
+    std::fs::read_to_string(path)
+        .ok()
+        .and_then(|data| serde_json::from_str(&data).ok())
+}
+
+/// Persist the in-progress session (called every UI tick while running).
+pub fn save_active(active: &ActiveSession) {
+    let Some(path) = active_path() else { return };
+    if let Ok(json) = serde_json::to_string(active) {
+        let _ = std::fs::write(path, json);
+    }
+}
+
+/// Remove the active-session file. Called when a session is recorded or
+/// reset, so a stale snapshot is never restored later.
+pub fn clear_active() {
+    if let Some(path) = active_path() {
+        let _ = std::fs::remove_file(path);
+    }
+}

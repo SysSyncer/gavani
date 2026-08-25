@@ -25,7 +25,7 @@ use std::time::Instant;
 use chrono::{DateTime, Local};
 
 use crate::config::Config;
-use crate::storage::Session;
+use crate::storage::{self, Session};
 use crate::theme::Theme;
 
 /// The focus timer's finite state machine.
@@ -86,8 +86,18 @@ pub struct App {
 impl Default for App {
     fn default() -> Self {
         let config = Config::load();
+        // Crash/quit recovery: if the previous run closed while a session
+        // was in progress (running OR paused), restore it as paused so no
+        // focus time is silently lost.
+        let state = match crate::storage::load_active() {
+            Some(active) => State::Paused {
+                started_at: active.start,
+                elapsed: active.elapsed,
+            },
+            None => State::Idle,
+        };
         Self {
-            state: State::Idle,
+            state,
             sessions: crate::storage::load().sessions,
             selected: None,
             should_quit: false,
@@ -185,6 +195,25 @@ impl App {
         self.sessions.insert(0, session); // newest first
         self.selected = Some(0);
         self.state = State::Idle;
+        storage::clear_active(); // snapshot recorded; don't restore it later
+    }
+
+    /// Save a snapshot of the in-progress session (if any) so the timer
+    /// survives a crash or `q` while running/paused. Called every UI tick:
+    /// a hard kill loses at most ~250 ms of counted time.
+    ///
+    /// A *running* session is saved as elapsed-frozen; on restore it comes
+    /// back paused (we can't keep counting while the process is dead).
+    pub fn persist_active(&self) {
+        match self.timer() {
+            Some((elapsed, _paused)) => {
+                if let Some(start) = self.state.started_at() {
+                    storage::save_active(&storage::ActiveSession { start, elapsed });
+                }
+            }
+            // Idle: make sure no stale snapshot survives a stop/reset.
+            None => storage::clear_active(),
+        }
     }
 
     /// `(seconds on the clock, is_paused)` while a session exists.
@@ -313,5 +342,30 @@ mod tests {
         app.delete_selected();
         app.delete_selected();
         assert_eq!(app.selected, None);
+    }
+
+    #[test]
+    fn active_session_survives_restart_as_paused() {
+        // Simulate: app quits while a session is running.
+        let mut app = fresh_app();
+        app.toggle();
+        app.persist_active();
+
+        // A brand-new App instance (like relaunching the binary) must
+        // restore the session in the paused state with elapsed time kept.
+        let restored = App {
+            sessions: vec![],
+            ..App::default()
+        };
+        let State::Paused { elapsed, .. } = restored.state else {
+            panic!("expected restored session to be paused");
+        };
+        assert_eq!(elapsed, 0);
+
+        // Stopping the restored session records it and clears the snapshot.
+        let mut restored = restored;
+        restored.toggle();
+        assert_eq!(restored.sessions.len(), 1);
+        assert!(crate::storage::load_active().is_none());
     }
 }

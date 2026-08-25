@@ -39,6 +39,10 @@ fn run(terminal: &mut ratatui::DefaultTerminal) -> io::Result<()> {
     let mut app = App::default();
 
     while !app.should_quit {
+        // Snapshot the running timer every tick (~4x/sec) so a crash or
+        // `q` mid-session never loses more than a fraction of a second.
+        app.persist_active();
+
         terminal.draw(|f| ui::draw(f, &app))?;
 
         if poll(Duration::from_millis(250))? {

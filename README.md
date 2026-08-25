@@ -22,6 +22,23 @@ Grab a `gavani-vX.Y.Z-<target>` asset from
 automatically for Linux (x86_64), macOS (Apple Silicon + Intel), and
 Windows by CI on every version tag.
 
+Or with `curl` (Linux x86_64 example — swap the target name for your
+platform: `aarch64-apple-darwin` / `x86_64-apple-darwin` /
+`x86_64-pc-windows-msvc`):
+
+```bash
+curl -fLO https://github.com/SysSyncer/gavani/releases/download/v0.1.0/gavani-0.1.0-x86_64-unknown-linux-gnu.tar.gz
+tar xzf gavani-0.1.0-x86_64-unknown-linux-gnu.tar.gz
+sudo install gavani-0.1.0/gavani /usr/local/bin/
+```
+
+Debian/Ubuntu can install the `.deb` directly:
+
+```bash
+curl -fLO https://github.com/SysSyncer/gavani/releases/download/v0.1.0/gavani_0.1.0-1_amd64.deb
+sudo apt install ./gavani_0.1.0-1_amd64.deb
+```
+
 ### Package managers
 
 | Platform | Method | Status |
@@ -72,6 +89,15 @@ On first launch gavani writes a default config file you can edit:
 
 Session history is stored next to it in `sessions.json`. Plain JSON means
 you can back it up, script over it, or hand-edit it freely.
+
+### Crash / quit recovery
+
+If you quit (`q`) or the app is killed while the stopwatch is running or
+paused, the in-progress session is saved to `active.json` (continuously,
+~4×/second). On the next launch the timer reappears **paused** with all
+the elapsed time intact — press `p` to resume where you left off, `s` to
+record it, or `r` to discard it. A hard kill loses at most ~250 ms of
+counted time.
 
 ### Ideas for future config options
 
