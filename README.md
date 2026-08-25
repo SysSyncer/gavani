@@ -22,21 +22,17 @@ Grab a `gavani-vX.Y.Z-<target>` asset from
 automatically for Linux (x86_64), macOS (Apple Silicon + Intel), and
 Windows by CI on every version tag.
 
-Or with `curl` (Linux x86_64 example — swap the target name for your
-platform: `aarch64-apple-darwin` / `x86_64-apple-darwin` /
-`x86_64-pc-windows-msvc`):
+Or install with one command (the script auto‑detects your platform
+and installs the correct binary):
 
 ```bash
-curl -fLO https://github.com/SysSyncer/gavani/releases/download/v0.1.0/gavani-0.1.0-x86_64-unknown-linux-gnu.tar.gz
-tar xzf gavani-0.1.0-x86_64-unknown-linux-gnu.tar.gz
-sudo install gavani-0.1.0/gavani /usr/local/bin/
+curl -fsSL https://raw.githubusercontent.com/SysSyncer/gavani/main/install.sh | sh
 ```
 
-Debian/Ubuntu can install the `.deb` directly:
+### curl (single‑line)
 
 ```bash
-curl -fLO https://github.com/SysSyncer/gavani/releases/download/v0.1.0/gavani_0.1.0-1_amd64.deb
-sudo apt install ./gavani_0.1.0-1_amd64.deb
+curl -fsSL https://raw.githubusercontent.com/SysSyncer/gavani/main/install.sh | sh
 ```
 
 ### Package managers
